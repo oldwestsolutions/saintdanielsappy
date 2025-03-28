@@ -17,41 +17,66 @@ struct HealthTrackingView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     // Health Metrics Overview
-                    HealthMetricsOverview(metrics: viewModel.currentUser?.healthMetrics)
+                    if let metrics = viewModel.currentUser?.healthMetrics {
+                        HealthMetricsOverview(metrics: metrics)
+                    }
                     
                     // Time Range Selector
-                    Picker("Time Range", selection: $selectedTimeRange) {
-                        ForEach(TimeRange.allCases, id: \.self) { range in
-                            Text(range.rawValue).tag(range)
+                    RoyalCard {
+                        Picker("Time Range", selection: $selectedTimeRange) {
+                            ForEach(TimeRange.allCases, id: \.self) { range in
+                                Text(range.rawValue).tag(range)
+                            }
                         }
+                        .pickerStyle(.segmented)
                     }
-                    .pickerStyle(.segmented)
                     .padding(.horizontal)
                     
                     // Activity Chart
-                    ActivityChart(timeRange: selectedTimeRange)
-                        .frame(height: 200)
-                        .padding()
-                    
-                    // Health Goals
-                    VStack(alignment: .leading, spacing: 15) {
-                        HStack {
-                            Text("Health Goals")
-                                .font(.headline)
-                            Spacer()
-                            Button(action: { showingAddGoal = true }) {
-                                Image(systemName: "plus.circle.fill")
-                                    .foregroundColor(.blue)
-                            }
-                        }
-                        .padding(.horizontal)
-                        
-                        ForEach(viewModel.healthGoals) { goal in
-                            GoalCard(goal: goal)
+                    RoyalCard {
+                        VStack(alignment: .leading, spacing: 16) {
+                            Text("Activity Trends")
+                                .font(Theme.Typography.bodyFont)
+                                .foregroundColor(Theme.primaryColor)
+                            
+                            ActivityChart(timeRange: selectedTimeRange)
+                                .frame(height: 200)
                         }
                     }
+                    .padding(.horizontal)
+                    
+                    // Health Goals
+                    RoyalCard {
+                        VStack(alignment: .leading, spacing: 15) {
+                            HStack {
+                                Text("Health Goals")
+                                    .font(Theme.Typography.bodyFont)
+                                    .foregroundColor(Theme.primaryColor)
+                                Spacer()
+                                Button {
+                                    showingAddGoal = true
+                                } label: {
+                                    Image(systemName: "plus.circle.fill")
+                                        .foregroundColor(Theme.secondaryColor)
+                                }
+                            }
+                            
+                            if viewModel.healthGoals.isEmpty {
+                                Text("No goals set")
+                                    .foregroundColor(.secondary)
+                                    .padding(.vertical)
+                            } else {
+                                ForEach(viewModel.healthGoals) { goal in
+                                    GoalCard(goal: goal)
+                                }
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
                 }
+                .padding(.vertical)
             }
+            .background(Theme.backgroundColor)
             .navigationTitle("Health Tracking")
             .sheet(isPresented: $showingAddGoal) {
                 AddGoalView()
@@ -61,47 +86,49 @@ struct HealthTrackingView: View {
 }
 
 struct HealthMetricsOverview: View {
-    let metrics: HealthMetrics?
+    let metrics: HealthMetrics
     
     var body: some View {
-        VStack(spacing: 15) {
-            HStack {
-                MetricCard(
-                    title: "Steps",
-                    value: "\(metrics?.steps ?? 0)",
-                    icon: "figure.walk",
-                    color: .blue
-                )
-                
-                MetricCard(
-                    title: "Heart Rate",
-                    value: "\(metrics?.heartRate ?? 0)",
-                    icon: "heart.fill",
-                    color: .red
-                )
-                
-                MetricCard(
-                    title: "Sleep",
-                    value: String(format: "%.1f", metrics?.sleepHours ?? 0),
-                    icon: "bed.double.fill",
-                    color: .purple
-                )
-            }
-            
-            if let bloodPressure = metrics?.bloodPressure {
+        RoyalCard {
+            VStack(spacing: 15) {
                 HStack {
-                    Text("Blood Pressure")
-                        .font(.subheadline)
-                    Spacer()
-                    Text("\(bloodPressure.systolic)/\(bloodPressure.diastolic)")
-                        .font(.headline)
+                    MetricCard(
+                        title: "Steps",
+                        value: "\(metrics.steps)",
+                        icon: "figure.walk",
+                        color: Theme.secondaryColor
+                    )
+                    
+                    MetricCard(
+                        title: "Heart Rate",
+                        value: "\(metrics.heartRate)",
+                        icon: "heart.fill",
+                        color: .red
+                    )
+                    
+                    MetricCard(
+                        title: "Sleep",
+                        value: String(format: "%.1f", metrics.sleepHours),
+                        icon: "bed.double.fill",
+                        color: .purple
+                    )
                 }
-                .padding()
-                .background(Color.green.opacity(0.1))
-                .cornerRadius(10)
+                
+                if let bloodPressure = metrics.bloodPressure {
+                    HStack {
+                        Text("Blood Pressure")
+                            .font(.subheadline)
+                        Spacer()
+                        Text("\(bloodPressure.systolic)/\(bloodPressure.diastolic)")
+                            .font(.headline)
+                    }
+                    .padding()
+                    .background(Theme.secondaryColor.opacity(0.1))
+                    .cornerRadius(10)
+                }
             }
         }
-        .padding()
+        .padding(.horizontal)
     }
 }
 
@@ -144,7 +171,7 @@ struct ActivityChart: View {
                 x: .value("Date", item.date),
                 y: .value("Steps", item.steps)
             )
-            .foregroundStyle(Color.blue.gradient)
+            .foregroundStyle(Theme.secondaryColor.gradient)
         }
     }
 }
@@ -178,9 +205,9 @@ struct GoalCard: View {
             }
         }
         .padding()
-        .background(Color.gray.opacity(0.1))
+        .background(Color.white)
         .cornerRadius(10)
-        .padding(.horizontal)
+        .shadow(color: Color.black.opacity(0.1), radius: 5, x: 0, y: 2)
     }
     
     private var iconName: String {
@@ -195,11 +222,11 @@ struct GoalCard: View {
     
     private var iconColor: Color {
         switch goal.type {
-        case .steps: return .blue
+        case .steps: return Theme.secondaryColor
         case .sleep: return .purple
         case .weight: return .green
         case .exercise: return .orange
-        case .checkup: return .red
+        case .checkup: return Theme.primaryColor
         }
     }
 }
@@ -226,6 +253,7 @@ struct AddGoalView: View {
                 
                 Section("Target") {
                     TextField("Target Value", value: $target, format: .number)
+                        .keyboardType(.decimalPad)
                 }
                 
                 Section("Deadline") {
@@ -235,26 +263,32 @@ struct AddGoalView: View {
                 Section("Points Reward") {
                     Stepper("\(pointsReward) points", value: $pointsReward, in: 50...1000, step: 50)
                 }
-            }
-            .navigationTitle("Add Goal")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancel") {
-                        dismiss()
-                    }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Add") {
+                
+                Section {
+                    Button("Add Goal") {
                         let goal = HealthGoal(
                             id: UUID().uuidString,
                             type: selectedType,
                             target: target,
                             current: 0,
                             deadline: deadline,
-                            pointsReward: pointsReward
+                            pointsReward: Double(pointsReward)
                         )
                         viewModel.addHealthGoal(goal)
+                        dismiss()
+                    }
+                    .frame(maxWidth: .infinity)
+                    .foregroundColor(.white)
+                    .padding()
+                    .background(Theme.secondaryColor)
+                    .cornerRadius(10)
+                }
+            }
+            .navigationTitle("Add Goal")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Cancel") {
                         dismiss()
                     }
                 }

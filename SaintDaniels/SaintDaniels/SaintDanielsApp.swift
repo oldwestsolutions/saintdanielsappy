@@ -13,13 +13,8 @@ struct SaintDanielsApp: App {
     
     var body: some Scene {
         WindowGroup {
-            if viewModel.currentUser == nil {
-                WelcomeView()
-                    .environmentObject(viewModel)
-            } else {
-                ContentView()
-                    .environmentObject(viewModel)
-            }
+            ContentView()
+                .environmentObject(viewModel)
         }
     }
 }

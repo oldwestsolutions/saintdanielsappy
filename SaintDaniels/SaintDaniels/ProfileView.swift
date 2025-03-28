@@ -7,101 +7,140 @@ struct ProfileView: View {
     
     var body: some View {
         NavigationView {
-            List {
-                // Profile Header
-                Section {
-                    HStack(spacing: 20) {
-                        Image(systemName: "person.circle.fill")
-                            .font(.system(size: 60))
-                            .foregroundColor(.blue)
-                        
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text(viewModel.currentUser?.name ?? "User Name")
-                                .font(.headline)
-                            Text(viewModel.currentUser?.email ?? "email@example.com")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
+            ScrollView {
+                VStack(spacing: 20) {
+                    // Profile Header
+                    RoyalCard {
+                        HStack(spacing: 20) {
+                            Image(systemName: "person.circle.fill")
+                                .font(.system(size: 60))
+                                .foregroundColor(Theme.secondaryColor)
+                            
+                            VStack(alignment: .leading, spacing: 5) {
+                                Text(viewModel.currentUser?.name ?? "User Name")
+                                    .font(Theme.Typography.bodyFont)
+                                    .foregroundColor(Theme.primaryColor)
+                                Text(viewModel.currentUser?.email ?? "email@example.com")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                        }
+                        .padding(.vertical, 10)
+                    }
+                    .padding(.horizontal)
+                    
+                    // Quick Actions
+                    RoyalCard {
+                        VStack(alignment: .leading, spacing: 15) {
+                            Text("Quick Actions")
+                                .font(Theme.Typography.bodyFont)
+                                .foregroundColor(Theme.primaryColor)
+                            
+                            NavigationLink {
+                                Text("View Activity History")
+                            } label: {
+                                Label("Activity History", systemImage: "clock.fill")
+                                    .foregroundColor(Theme.secondaryColor)
+                            }
+                            
+                            NavigationLink {
+                                Text("View Rewards History")
+                            } label: {
+                                Label("Rewards History", systemImage: "gift.fill")
+                                    .foregroundColor(Theme.secondaryColor)
+                            }
+                            
+                            NavigationLink {
+                                Text("View Claims History")
+                            } label: {
+                                Label("Claims History", systemImage: "doc.text.fill")
+                                    .foregroundColor(Theme.secondaryColor)
+                            }
                         }
                     }
-                    .padding(.vertical, 10)
-                }
-                
-                // Quick Actions
-                Section("Quick Actions") {
-                    NavigationLink {
-                        Text("View Activity History")
-                    } label: {
-                        Label("Activity History", systemImage: "clock.fill")
-                    }
+                    .padding(.horizontal)
                     
-                    NavigationLink {
-                        Text("View Rewards History")
-                    } label: {
-                        Label("Rewards History", systemImage: "gift.fill")
-                    }
-                    
-                    NavigationLink {
-                        Text("View Claims History")
-                    } label: {
-                        Label("Claims History", systemImage: "doc.text.fill")
-                    }
-                }
-                
-                // Health Goals
-                Section("Health Goals") {
-                    ForEach(viewModel.healthGoals) { goal in
-                        VStack(alignment: .leading, spacing: 5) {
-                            Text(goal.type.rawValue.capitalized)
-                                .font(.subheadline)
-                            ProgressView(value: goal.current, total: goal.target)
-                                .tint(.blue)
-                            Text("\(Int(goal.current))/\(Int(goal.target))")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
+                    // Health Goals
+                    RoyalCard {
+                        VStack(alignment: .leading, spacing: 15) {
+                            Text("Health Goals")
+                                .font(Theme.Typography.bodyFont)
+                                .foregroundColor(Theme.primaryColor)
+                            
+                            if viewModel.healthGoals.isEmpty {
+                                Text("No goals set")
+                                    .foregroundColor(.secondary)
+                                    .padding(.vertical)
+                            } else {
+                                ForEach(viewModel.healthGoals) { goal in
+                                    VStack(alignment: .leading, spacing: 5) {
+                                        Text(goal.type.rawValue.capitalized)
+                                            .font(.subheadline)
+                                        ProgressView(value: goal.current, total: goal.target)
+                                            .tint(Theme.secondaryColor)
+                                        Text("\(Int(goal.current))/\(Int(goal.target))")
+                                            .font(.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                            }
                         }
                     }
+                    .padding(.horizontal)
+                    
+                    // Settings
+                    RoyalCard {
+                        VStack(spacing: 15) {
+                            Button(action: { showingEditProfile = true }) {
+                                Label("Edit Profile", systemImage: "pencil")
+                                    .foregroundColor(Theme.secondaryColor)
+                            }
+                            
+                            Button(action: { showingSettings = true }) {
+                                Label("Settings", systemImage: "gear")
+                                    .foregroundColor(Theme.secondaryColor)
+                            }
+                            
+                            Button(action: {
+                                viewModel.signOut()
+                            }) {
+                                Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
+                                    .foregroundColor(.red)
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
+                    
+                    // App Info
+                    RoyalCard {
+                        VStack(alignment: .leading, spacing: 15) {
+                            HStack {
+                                Text("Version")
+                                Spacer()
+                                Text("1.0.0")
+                                    .foregroundColor(.secondary)
+                            }
+                            
+                            NavigationLink {
+                                Text("Privacy Policy")
+                            } label: {
+                                Text("Privacy Policy")
+                                    .foregroundColor(Theme.secondaryColor)
+                            }
+                            
+                            NavigationLink {
+                                Text("Terms of Service")
+                            } label: {
+                                Text("Terms of Service")
+                                    .foregroundColor(Theme.secondaryColor)
+                            }
+                        }
+                    }
+                    .padding(.horizontal)
                 }
-                
-                // Settings
-                Section {
-                    Button(action: { showingEditProfile = true }) {
-                        Label("Edit Profile", systemImage: "pencil")
-                    }
-                    
-                    Button(action: { showingSettings = true }) {
-                        Label("Settings", systemImage: "gear")
-                    }
-                    
-                    Button(action: {
-                        viewModel.signOut()
-                    }) {
-                        Label("Sign Out", systemImage: "rectangle.portrait.and.arrow.right")
-                            .foregroundColor(.red)
-                    }
-                }
-                
-                // App Info
-                Section {
-                    HStack {
-                        Text("Version")
-                        Spacer()
-                        Text("1.0.0")
-                            .foregroundColor(.secondary)
-                    }
-                    
-                    NavigationLink {
-                        Text("Privacy Policy")
-                    } label: {
-                        Text("Privacy Policy")
-                    }
-                    
-                    NavigationLink {
-                        Text("Terms of Service")
-                    } label: {
-                        Text("Terms of Service")
-                    }
-                }
+                .padding(.vertical)
             }
+            .background(Theme.backgroundColor)
             .navigationTitle("Profile")
             .sheet(isPresented: $showingEditProfile) {
                 EditProfileView()
@@ -143,7 +182,7 @@ struct EditProfileView: View {
                     .frame(maxWidth: .infinity)
                     .foregroundColor(.white)
                     .padding()
-                    .background(Color.blue)
+                    .background(Theme.secondaryColor)
                     .cornerRadius(10)
                 }
             }
@@ -175,17 +214,23 @@ struct SettingsView: View {
             Form {
                 Section("Notifications") {
                     Toggle("Push Notifications", isOn: $notificationsEnabled)
+                        .tint(Theme.secondaryColor)
                     Toggle("Email Notifications", isOn: $notificationsEnabled)
+                        .tint(Theme.secondaryColor)
                     Toggle("SMS Notifications", isOn: $notificationsEnabled)
+                        .tint(Theme.secondaryColor)
                 }
                 
                 Section("Health & Fitness") {
                     Toggle("Connect with HealthKit", isOn: $healthKitEnabled)
+                        .tint(Theme.secondaryColor)
                     Toggle("Share Health Data", isOn: $healthKitEnabled)
+                        .tint(Theme.secondaryColor)
                 }
                 
                 Section("Appearance") {
                     Toggle("Dark Mode", isOn: $darkModeEnabled)
+                        .tint(Theme.secondaryColor)
                     Picker("Language", selection: $language) {
                         ForEach(languages, id: \.self) { language in
                             Text(language).tag(language)
@@ -197,6 +242,8 @@ struct SettingsView: View {
                     Button("Export Health Data") {
                         // TODO: Implement data export
                     }
+                    .foregroundColor(Theme.secondaryColor)
+                    
                     Button("Clear App Data") {
                         // TODO: Implement data clearing
                     }

@@ -8,48 +8,59 @@
 import SwiftUI
 import CoreData
 
+class TabRouter: ObservableObject {
+    @Published var selectedTab = 0
+}
+
 struct ContentView: View {
     @EnvironmentObject private var viewModel: SaintDanielsViewModel
-    @State private var selectedTab = 0
+    @StateObject private var router = TabRouter()
     
     var body: some View {
-        TabView(selection: $selectedTab) {
-            DashboardView()
-                .tabItem {
-                    Label("Dashboard", systemImage: "house.fill")
+        Group {
+            if viewModel.isAuthenticated {
+                TabView(selection: $router.selectedTab) {
+                    DashboardView(router: router)
+                        .tabItem {
+                            Label("Dashboard", systemImage: "house.fill")
+                        }
+                        .tag(0)
+                    
+                    RewardsView()
+                        .tabItem {
+                            Label("Rewards", systemImage: "gift.fill")
+                        }
+                        .tag(1)
+                    
+                    HealthTrackingView()
+                        .tabItem {
+                            Label("Health", systemImage: "heart.fill")
+                        }
+                        .tag(2)
+                    
+                    InsuranceView()
+                        .tabItem {
+                            Label("Insurance", systemImage: "shield.fill")
+                        }
+                        .tag(3)
+                    
+                    ProfileView()
+                        .tabItem {
+                            Label("Profile", systemImage: "person.fill")
+                        }
+                        .tag(4)
                 }
-                .tag(0)
-            
-            RewardsView()
-                .tabItem {
-                    Label("Rewards", systemImage: "gift.fill")
-                }
-                .tag(1)
-            
-            HealthTrackingView()
-                .tabItem {
-                    Label("Health", systemImage: "heart.fill")
-                }
-                .tag(2)
-            
-            InsuranceView()
-                .tabItem {
-                    Label("Insurance", systemImage: "shield.fill")
-                }
-                .tag(3)
-            
-            ProfileView()
-                .tabItem {
-                    Label("Profile", systemImage: "person.fill")
-                }
-                .tag(4)
+                .accentColor(Theme.secondaryColor)
+            } else {
+                WelcomeView()
+            }
         }
-        .accentColor(Theme.secondaryColor)
     }
 }
 
 struct DashboardView: View {
     @EnvironmentObject private var viewModel: SaintDanielsViewModel
+    @ObservedObject var router: TabRouter
     
     var body: some View {
         NavigationView {
@@ -102,8 +113,16 @@ struct DashboardView: View {
                                     .foregroundColor(.secondary)
                             }
                             
-                            RoyalButton("VIEW REWARDS", isPrimary: false) {
-                                selectedTab = 1
+                            Button {
+                                router.selectedTab = 1
+                            } label: {
+                                Text("VIEW REWARDS")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 14)
+                                    .foregroundColor(.white)
+                                    .background(Theme.secondaryColor)
+                                    .cornerRadius(8)
                             }
                         }
                     }
@@ -145,8 +164,16 @@ struct DashboardView: View {
                                 }
                             }
                             
-                            RoyalButton("VIEW ALL ACTIVITIES", isPrimary: false) {
+                            Button {
                                 // TODO: Navigate to activity history
+                            } label: {
+                                Text("VIEW ALL ACTIVITIES")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 14)
+                                    .foregroundColor(.white)
+                                    .background(Theme.secondaryColor)
+                                    .cornerRadius(8)
                             }
                         }
                     }
@@ -173,8 +200,16 @@ struct DashboardView: View {
                                 CoverageRow(title: "Out-of-pocket Max", value: "$2,000")
                             }
                             
-                            RoyalButton("VIEW COVERAGE DETAILS", isPrimary: false) {
-                                selectedTab = 3
+                            Button {
+                                router.selectedTab = 3
+                            } label: {
+                                Text("VIEW COVERAGE DETAILS")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 14)
+                                    .foregroundColor(.white)
+                                    .background(Theme.secondaryColor)
+                                    .cornerRadius(8)
                             }
                         }
                     }
@@ -188,16 +223,40 @@ struct DashboardView: View {
                                 .foregroundColor(Theme.primaryColor)
                             
                             VStack(spacing: 12) {
-                                RoyalButton("FIND A DOCTOR") {
+                                Button {
                                     // TODO: Implement find a doctor
+                                } label: {
+                                    Text("FIND A DOCTOR")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 14)
+                                        .foregroundColor(.white)
+                                        .background(Theme.secondaryColor)
+                                        .cornerRadius(8)
                                 }
                                 
-                                RoyalButton("CONTACT SUPPORT", isPrimary: false) {
+                                Button {
                                     // TODO: Implement contact support
+                                } label: {
+                                    Text("CONTACT SUPPORT")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 14)
+                                        .foregroundColor(.white)
+                                        .background(Theme.secondaryColor)
+                                        .cornerRadius(8)
                                 }
                                 
-                                RoyalButton("ACCOUNT SETTINGS", isPrimary: false) {
-                                    selectedTab = 4
+                                Button {
+                                    router.selectedTab = 4
+                                } label: {
+                                    Text("ACCOUNT SETTINGS")
+                                        .font(.system(size: 16, weight: .semibold))
+                                        .frame(maxWidth: .infinity)
+                                        .padding(.vertical, 14)
+                                        .foregroundColor(.white)
+                                        .background(Theme.secondaryColor)
+                                        .cornerRadius(8)
                                 }
                             }
                         }
@@ -207,6 +266,7 @@ struct DashboardView: View {
                 .padding(.vertical)
             }
             .background(Theme.backgroundColor)
+            .navigationTitle("Dashboard")
         }
     }
 }

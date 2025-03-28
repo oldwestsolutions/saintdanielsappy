@@ -19,23 +19,23 @@ struct RewardsView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     // Points Balance
-                    HStack {
-                        VStack(alignment: .leading) {
-                            Text("Available Points")
-                                .font(.subheadline)
-                                .foregroundColor(.secondary)
-                            Text("\(viewModel.currentUser?.points ?? 0)")
+                    RoyalCard {
+                        HStack {
+                            VStack(alignment: .leading) {
+                                Text("Available Points")
+                                    .font(Theme.Typography.bodyFont)
+                                    .foregroundColor(Theme.primaryColor)
+                                Text("\(viewModel.currentUser?.points ?? 0)")
+                                    .font(.system(size: 32, weight: .bold))
+                                    .foregroundColor(Theme.primaryColor)
+                            }
+                            Spacer()
+                            Image(systemName: "star.fill")
                                 .font(.title)
-                                .fontWeight(.bold)
+                                .foregroundColor(Theme.secondaryColor)
                         }
-                        Spacer()
-                        Image(systemName: "star.fill")
-                            .font(.title)
-                            .foregroundColor(.yellow)
                     }
-                    .padding()
-                    .background(Color.blue.opacity(0.1))
-                    .cornerRadius(15)
+                    .padding(.horizontal)
                     
                     // Categories
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -65,7 +65,9 @@ struct RewardsView: View {
                     }
                     .padding()
                 }
+                .padding(.vertical)
             }
+            .background(Theme.backgroundColor)
             .navigationTitle("Rewards")
             .alert("Redeem Reward", isPresented: $showingRedeemAlert) {
                 Button("Cancel", role: .cancel) {}
@@ -100,12 +102,12 @@ struct CategoryButton: View {
     var body: some View {
         Button(action: action) {
             Text(category.rawValue.capitalized)
-                .font(.subheadline)
+                .font(Theme.Typography.bodyFont)
                 .fontWeight(.medium)
                 .padding(.horizontal, 20)
                 .padding(.vertical, 10)
-                .background(isSelected ? Color.blue : Color.gray.opacity(0.2))
-                .foregroundColor(isSelected ? .white : .primary)
+                .background(isSelected ? Theme.secondaryColor : Color.gray.opacity(0.2))
+                .foregroundColor(isSelected ? .white : Theme.primaryColor)
                 .cornerRadius(20)
         }
     }
@@ -116,60 +118,63 @@ struct RewardCard: View {
     let onRedeem: () -> Void
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            // Reward Image
-            if let imageURL = reward.imageURL {
-                AsyncImage(url: URL(string: imageURL)) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                } placeholder: {
-                    Color.gray.opacity(0.2)
-                }
-                .frame(height: 120)
-                .clipped()
-            } else {
-                Color.gray.opacity(0.2)
+        RoyalCard {
+            VStack(alignment: .leading, spacing: 10) {
+                // Reward Image
+                if let imageURL = reward.imageURL {
+                    AsyncImage(url: URL(string: imageURL)) { image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    } placeholder: {
+                        Color.gray.opacity(0.2)
+                    }
                     .frame(height: 120)
-            }
-            
-            // Reward Info
-            VStack(alignment: .leading, spacing: 5) {
-                Text(reward.name)
-                    .font(.headline)
-                
-                Text(reward.description)
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .lineLimit(2)
-                
-                HStack {
-                    Image(systemName: "star.fill")
-                        .foregroundColor(.yellow)
-                    Text("\(reward.pointsCost)")
-                        .fontWeight(.semibold)
-                }
-                .font(.subheadline)
-            }
-            .padding(.horizontal, 8)
-            .padding(.bottom, 8)
-            
-            // Redeem Button
-            Button(action: onRedeem) {
-                Text("Redeem")
-                    .font(.subheadline)
-                    .fontWeight(.semibold)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 8)
-                    .background(Color.blue)
-                    .foregroundColor(.white)
+                    .clipped()
                     .cornerRadius(8)
+                } else {
+                    Color.gray.opacity(0.2)
+                        .frame(height: 120)
+                        .cornerRadius(8)
+                }
+                
+                // Reward Info
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(reward.name)
+                        .font(Theme.Typography.bodyFont)
+                        .foregroundColor(Theme.primaryColor)
+                    
+                    Text(reward.description)
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                        .lineLimit(2)
+                    
+                    HStack {
+                        Image(systemName: "star.fill")
+                            .foregroundColor(Theme.secondaryColor)
+                        Text("\(reward.pointsCost)")
+                            .fontWeight(.semibold)
+                            .foregroundColor(Theme.primaryColor)
+                    }
+                    .font(.subheadline)
+                }
+                .padding(.horizontal, 8)
+                .padding(.bottom, 8)
+                
+                // Redeem Button
+                Button(action: onRedeem) {
+                    Text("Redeem")
+                        .font(.subheadline)
+                        .fontWeight(.semibold)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 8)
+                        .background(Theme.secondaryColor)
+                        .foregroundColor(.white)
+                        .cornerRadius(8)
+                }
+                .padding(.horizontal, 8)
             }
-            .padding(.horizontal, 8)
         }
-        .background(Color.white)
-        .cornerRadius(15)
-        .shadow(radius: 2)
     }
 }
 
